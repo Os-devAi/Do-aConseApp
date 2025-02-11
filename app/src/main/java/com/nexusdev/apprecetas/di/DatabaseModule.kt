@@ -1,7 +1,9 @@
 package com.nexusdev.apprecetas.di
 
+import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import androidx.room.Room.databaseBuilder
 import com.nexusdev.apprecetas.data.local.AppDatabase
 import com.nexusdev.apprecetas.data.local.dao.RecetaDao
 import com.nexusdev.apprecetas.data.repository.RecetaRepository
@@ -18,16 +20,15 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
+    fun provideDatabase(app: Application): AppDatabase {
+        return databaseBuilder(
+            app,
             AppDatabase::class.java,
-            "app_database"
+            "recetas_db"
         ).build()
     }
 
     @Provides
-    @Singleton
     fun provideRecetaDao(database: AppDatabase): RecetaDao {
         return database.recetaDao()
     }

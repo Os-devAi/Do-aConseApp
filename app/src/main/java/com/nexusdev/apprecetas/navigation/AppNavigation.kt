@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nexusdev.apprecetas.presentation.ui.AddRecetas
+import com.nexusdev.apprecetas.presentation.ui.DetalleRecetaScreen
 import com.nexusdev.apprecetas.presentation.ui.RecetasScreen
 
 @Composable
@@ -13,6 +15,13 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "recetas") {
         composable("recetas") {
             RecetasScreen(navController)
+        }
+        composable("detalle/{recetaId}") { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId") ?: return@composable
+            DetalleRecetaScreen(navController, recetaId)
+        }
+        composable("add") {
+            AddRecetas(navController)
         }
     }
 }

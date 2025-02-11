@@ -12,12 +12,24 @@ import kotlinx.coroutines.flow.Flow
 interface RecetaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReseta(reseta: RecetaEntity)
+    suspend fun insertReceta(reseta: RecetaEntity)
 
     @Query("SELECT * FROM recetas")
     fun getRecetas(): Flow<List<RecetaEntity>>
 
+    @Query("SELECT * FROM recetas WHERE id = :recetaId")
+    fun getDetalle(recetaId: Int): Flow<RecetaEntity>
+
+    @Query("SELECT * FROM recetas WHERE favorito = 1")
+    fun getFav(): Flow<List<RecetaEntity>>
+
+    @Query("UPDATE recetas SET favorito = 1 WHERE id = :recetaId")
+    suspend fun addFav(recetaId: Int)
+
+    @Query("UPDATE recetas SET favorito = 0 WHERE id = :recetaId")
+    suspend fun removeFav(recetaId: Int)
+
     @Delete
-    suspend fun deleteReseta(reseta: RecetaEntity)
+    suspend fun deleteReceta(receta: RecetaEntity)
 
 }

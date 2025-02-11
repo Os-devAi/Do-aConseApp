@@ -5,15 +5,28 @@ import com.nexusdev.apprecetas.data.local.entity.RecetaEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class RecetaRepository @Inject constructor(private val recetaDao: RecetaDao){
+
+class RecetaRepository @Inject constructor(private val recetaDao: RecetaDao) {
 
     fun getAllRecetas(): Flow<List<RecetaEntity>> = recetaDao.getRecetas()
 
+    fun getDetalle(recetaId: Int): Flow<RecetaEntity> = recetaDao.getDetalle(recetaId)
+
+    fun getFav(): Flow<List<RecetaEntity>> = recetaDao.getFav()
+
     suspend fun insertReceta(receta: RecetaEntity) {
-        recetaDao.insertReseta(receta)
+        recetaDao.insertReceta(receta)
+    }
+
+    suspend fun addFav(receta: Int) {
+        recetaDao.addFav(receta)
+    }
+
+    suspend fun remFav(receta: RecetaEntity) {
+        recetaDao.removeFav(receta.id)
     }
 
     suspend fun deleteReceta(receta: RecetaEntity) {
-        recetaDao.deleteReseta(receta)
+        recetaDao.deleteReceta(receta)
     }
 }
