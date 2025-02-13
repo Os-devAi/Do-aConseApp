@@ -24,6 +24,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nexusdev.apprecetas.presentation.viewmodel.RecetasViewModel
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
+import androidx.compose.ui.res.colorResource
+import com.nexusdev.apprecetas.R
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 @Composable
 fun AddRecetas(navController: NavController, viewModel: RecetasViewModel = hiltViewModel()) {
@@ -42,7 +51,12 @@ fun AddRecetas(navController: NavController, viewModel: RecetasViewModel = hiltV
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        imageUri = uri
+        uri?.let {
+            val savedImagePath = saveImageToInternalStorage(context, it)
+            if (savedImagePath != null) {
+                imageUri = Uri.fromFile(File(savedImagePath))
+            }
+        }
     }
 
     Scaffold(
@@ -133,11 +147,37 @@ fun AddRecetas(navController: NavController, viewModel: RecetasViewModel = hiltV
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.customGreen)
+                )
             ) {
                 Text("Guardar Receta")
             }
         }
+    }
+}
+
+fun saveImageToInternalStorage(context: Context, imageUri: Uri): String? {
+    return try {
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, imageUri)
+            ImageDecoder.decodeBitmap(source)
+        } else {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+        }
+
+        val fileName = "receta_${System.currentTimeMillis()}.jpg"
+        val file = File(context.filesDir, fileName)
+
+        FileOutputStream(file).use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        }
+
+        file.absolutePath  // Retorna la ruta de la imagen guardada
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
     }
 }
 
@@ -153,13 +193,11 @@ fun SelectableImage(imageUri: Uri?, onImageClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         if (imageUri != null) {
-            val bitmap: Bitmap? = remember(imageUri) {
-                try {
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
-                } catch (e: Exception) {
-                    null
-                }
+            val bitmap = remember(imageUri) {
+                val file = File(imageUri.path ?: "")
+                if (file.exists()) BitmapFactory.decodeFile(file.absolutePath) else null
             }
+
             bitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),

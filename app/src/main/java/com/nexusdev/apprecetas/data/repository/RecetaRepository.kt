@@ -22,8 +22,8 @@ class RecetaRepository @Inject constructor(private val recetaDao: RecetaDao) {
         recetaDao.addFav(receta)
     }
 
-    suspend fun remFav(receta: RecetaEntity) {
-        recetaDao.removeFav(receta.id)
+    suspend fun remFav(receta: Int) {
+        recetaDao.removeFav(receta)
     }
 
     suspend fun deleteReceta(receta: RecetaEntity) {

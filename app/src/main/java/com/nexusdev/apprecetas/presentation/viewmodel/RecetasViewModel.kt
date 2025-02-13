@@ -55,6 +55,12 @@ class RecetasViewModel @Inject constructor(
         }
     }
 
+    fun remFavorito(recetaId: Int) {
+        viewModelScope.launch {
+            repository.remFav(recetaId)
+        }
+    }
+
     fun deleteReceta(receta: RecetaEntity) {
         viewModelScope.launch {
             repository.deleteReceta(receta)
