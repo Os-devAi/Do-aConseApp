@@ -104,4 +104,6 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
             Text("Login")
         }
     }
+
+    //Configurar shared preferences
 }
