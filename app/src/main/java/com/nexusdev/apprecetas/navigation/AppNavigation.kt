@@ -6,13 +6,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nexusdev.apprecetas.presentation.ui.AddRecetas
 import com.nexusdev.apprecetas.presentation.ui.DetalleRecetaScreen
+import com.nexusdev.apprecetas.presentation.ui.LoginScreen
 import com.nexusdev.apprecetas.presentation.ui.RecetasScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "recetas") {
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") {
+            LoginScreen(navController)
+        }
         composable("recetas") {
             RecetasScreen(navController)
         }

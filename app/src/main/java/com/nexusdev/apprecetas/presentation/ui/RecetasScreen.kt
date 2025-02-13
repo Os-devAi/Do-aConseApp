@@ -87,11 +87,11 @@ fun Header() {
 fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
 
     val recetas by viewModel.recetas.collectAsState()
-
     val recetasFav by viewModel.recetasFav.collectAsState()
+    val recetasOrder by viewModel.recetasOrdered.collectAsState()
 
     var isFavorite by remember { mutableStateOf(false) }
-
+    var isOrdered by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
 
     val recetasFiltradas = recetas.filter {
@@ -100,6 +100,11 @@ fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
     }
 
     val recetasFiltradasFav = recetasFav.filter {
+        it.titulo.contains(searchText, ignoreCase = true)
+        it.descripcion.contains(searchText, ignoreCase = true)
+    }
+
+    val recetasFiltradasOrder = recetasOrder.filter {
         it.titulo.contains(searchText, ignoreCase = true)
         it.descripcion.contains(searchText, ignoreCase = true)
     }
@@ -139,34 +144,72 @@ fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (isFavorite) {
-            if (recetasFiltradasFav.isEmpty()) {
-                Text(
-                    text = "Aún no has marcado nada como favorito ☺️",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(
+                    id = if (isOrdered) R.drawable.baseline_filter_alt_off else R.drawable.baseline_filter_alt
+                ),
+                contentDescription = "Icono de filtro",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { isOrdered = !isOrdered }
+            )
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            if (isOrdered) {
+                Text("Quitar filtro")
+            } else {
+                Text("Ordenar por tiempos")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (isOrdered) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                items(recetasFiltradasOrder) { recetasOrder ->
+                    RecetaCard(recetasOrder, viewModel, navController)
+                }
+            }
+        } else {
+            if (isFavorite) {
+                if (recetasFiltradasFav.isEmpty()) {
+                    Text(
+                        text = "Aún no has marcado nada como favorito ☺️",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(8.dp)
+                    ) {
+                        items(recetasFiltradasFav) { recetasFav ->
+                            RecetaCard(recetasFav, viewModel, navController)
+                        }
+                    }
+                }
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(8.dp)
                 ) {
-                    items(recetasFiltradasFav) { recetasFav ->
-                        RecetaCard(recetasFav, viewModel, navController)
+                    items(recetasFiltradas) { receta ->
+                        RecetaCard(receta, viewModel, navController)
                     }
-                }
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(recetasFiltradas) { receta ->
-                    RecetaCard(receta, viewModel, navController)
                 }
             }
         }

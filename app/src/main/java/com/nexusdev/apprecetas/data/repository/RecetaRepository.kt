@@ -10,6 +10,8 @@ class RecetaRepository @Inject constructor(private val recetaDao: RecetaDao) {
 
     fun getAllRecetas(): Flow<List<RecetaEntity>> = recetaDao.getRecetas()
 
+    fun getRecetasOrderBy(): Flow<List<RecetaEntity>> = recetaDao.getRecetasOrderBy()
+
     fun getDetalle(recetaId: Int): Flow<RecetaEntity> = recetaDao.getDetalle(recetaId)
 
     fun getFav(): Flow<List<RecetaEntity>> = recetaDao.getFav()

@@ -17,6 +17,9 @@ interface RecetaDao {
     @Query("SELECT * FROM recetas")
     fun getRecetas(): Flow<List<RecetaEntity>>
 
+    @Query("SELECT * FROM recetas ORDER BY tiempo")
+    fun getRecetasOrderBy(): Flow<List<RecetaEntity>>
+
     @Query("SELECT * FROM recetas WHERE id = :recetaId")
     fun getDetalle(recetaId: Int): Flow<RecetaEntity>
 

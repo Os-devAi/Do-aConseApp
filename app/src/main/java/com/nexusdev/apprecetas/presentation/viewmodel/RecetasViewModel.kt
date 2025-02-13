@@ -19,6 +19,9 @@ class RecetasViewModel @Inject constructor(
     val recetas: StateFlow<List<RecetaEntity>> = repository.getAllRecetas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val recetasOrdered: StateFlow<List<RecetaEntity>> = repository.getRecetasOrderBy()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val recetasFav: StateFlow<List<RecetaEntity>> = repository.getFav()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
