@@ -1,6 +1,10 @@
 package com.nexusdev.apprecetas.presentation.ui
 
+import android.content.Context
+import android.content.SharedPreferences
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,17 +16,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nexusdev.apprecetas.R
 import com.nexusdev.apprecetas.presentation.viewmodel.RecetasViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,6 +54,32 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
         var email by remember { mutableStateOf("") }
         val errorMessage by remember { mutableStateOf<String?>(null) }
         var password = remember { mutableStateOf("") }
+        val context = LocalContext.current
+
+        LaunchedEffect(Unit) {
+            delay(2000)
+            val sharedPreferences: SharedPreferences =
+                navController.context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+
+            if (isLoggedIn) {
+                navController.navigate("recetas") {
+                    popUpTo("login") { inclusive = true } // Evita volver a SplashScreen
+                }
+            } else {
+                navController.navigate("login") {
+                    popUpTo("login") { inclusive = true }
+                }
+            }
+        }
+
+        // UI del Splash Screen
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Cargando...", style = MaterialTheme.typography.headlineMedium)
+        }
 
         Card(
             modifier = Modifier
@@ -92,9 +126,26 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
             modifier = Modifier.height(8.dp)
         )
 
+        //Configurar shared preferences
+        fun guardarSecion(context: Context, isLoggedIn: Boolean) {
+            val sharedPreferences: SharedPreferences =
+                context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            with(sharedPreferences.edit()) {
+                putBoolean("isLoggedIn", isLoggedIn)
+                apply()
+            }
+        }
+
         Button(
             onClick = {
-                navController.navigate("recetas")
+                if (email == "info@koalit.dev" && password.value == "koalit123") {
+                    guardarSecion(context = navController.context, isLoggedIn = true)
+                    navController.navigate("recetas") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                } else {
+                    Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
@@ -104,6 +155,4 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
             Text("Login")
         }
     }
-
-    //Configurar shared preferences
 }
