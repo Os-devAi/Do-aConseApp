@@ -1,5 +1,8 @@
 package com.nexusdev.apprecetas.presentation.ui
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -39,7 +43,7 @@ fun RecetasScreen(
             .padding(16.dp)
     ) {
         Column {
-            Header()
+            Header(navController)
             Recetas(navController, viewModel)
         }
 
@@ -56,7 +60,8 @@ fun RecetasScreen(
 }
 
 @Composable
-fun Header() {
+fun Header(navController: NavController) {
+    var isVisibleDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,16 +75,29 @@ fun Header() {
         }
 
         Box {
-            Image(
-                painter = painterResource(id = R.drawable.profile),
+            Image(painter = painterResource(id = R.drawable.profile),
                 contentDescription = "Solo un logo xd",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(50.dp)
                     .clip(RoundedCornerShape(50.dp))
                     .background(Color.Black)
-            )
+                    .clickable {
+                        isVisibleDialog = true
+                    })
         }
+    }
+
+    if (isVisibleDialog) {
+        AlertDialogExample(
+            onDismissRequest = { isVisibleDialog = false },
+            onConfirm = {
+                logout(navController)
+                isVisibleDialog = false
+            },
+            dialogTitle = "Cerrar sesión",
+            dialogText = "¿Estás seguro de que deseas cerrar sesión?"
+        )
     }
 }
 
@@ -95,18 +113,18 @@ fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
     var searchText by remember { mutableStateOf("") }
 
     val recetasFiltradas = recetas.filter {
-        it.titulo.contains(searchText, ignoreCase = true)
-        it.descripcion.contains(searchText, ignoreCase = true)
+        it.titulo.contains(searchText, ignoreCase = true) ||
+                it.descripcion.contains(searchText, ignoreCase = true)
     }
 
     val recetasFiltradasFav = recetasFav.filter {
-        it.titulo.contains(searchText, ignoreCase = true)
-        it.descripcion.contains(searchText, ignoreCase = true)
+        it.titulo.contains(searchText, ignoreCase = true) ||
+                it.descripcion.contains(searchText, ignoreCase = true)
     }
 
     val recetasFiltradasOrder = recetasOrder.filter {
-        it.titulo.contains(searchText, ignoreCase = true)
-        it.descripcion.contains(searchText, ignoreCase = true)
+        it.titulo.contains(searchText, ignoreCase = true) ||
+                it.descripcion.contains(searchText, ignoreCase = true)
     }
 
     Column(
@@ -116,8 +134,7 @@ fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
     ) {
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -126,38 +143,32 @@ fun Recetas(navController: NavController, viewModel: RecetasViewModel) {
                 onValueChange = { searchText = it },
                 label = { Text("Buscar receta") },
                 singleLine = true,
-                modifier = Modifier
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             )
 
-            Image(
-                painter = painterResource(
-                    id = if (isFavorite) R.drawable.baseline_bookmark_added else R.drawable.baseline_bookmark_border
-                ),
+            Image(painter = painterResource(
+                id = if (isFavorite) R.drawable.baseline_bookmark_added else R.drawable.baseline_bookmark_border
+            ),
                 contentDescription = "Icono favoritos",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(40.dp)
-                    .clickable { isFavorite = !isFavorite }
-            )
+                    .clickable { isFavorite = !isFavorite })
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier, verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(
-                    id = if (isOrdered) R.drawable.baseline_filter_alt_off else R.drawable.baseline_filter_alt
-                ),
+            Image(painter = painterResource(
+                id = if (isOrdered) R.drawable.baseline_filter_alt_off else R.drawable.baseline_filter_alt
+            ),
                 contentDescription = "Icono de filtro",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(40.dp)
-                    .clickable { isOrdered = !isOrdered }
-            )
+                    .clickable { isOrdered = !isOrdered })
 
             Spacer(modifier = Modifier.width(5.dp))
 
@@ -224,8 +235,7 @@ fun RecetaCard(receta: RecetaEntity, viewModel: RecetasViewModel, navController:
             .padding(2.dp)
             .clickable {
                 navController.navigate("detalle/${receta.id}")
-            },
-        elevation = CardDefaults.cardElevation(4.dp)
+            }, elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
             modifier = Modifier
@@ -261,26 +271,35 @@ fun RecetaCard(receta: RecetaEntity, viewModel: RecetasViewModel, navController:
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "Tiempo: ${receta.tiempo} min", style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.height(8.dp))
-
-            /*Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { viewModel.deleteReceta(receta) }) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-                IconButton(onClick = { viewModel.addFavorito(receta.id) }) {
-                    Icon(
-                        Icons.Default.Favorite,
-                        contentDescription = "Favorito",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }*/
         }
     }
+}
+
+fun logout(navController: NavController) {
+    val context = navController.context
+    val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    sharedPreferences.edit().clear().apply()
+
+    navController.navigate("login") {
+        popUpTo("recetas") { inclusive = true }
+    }
+}
+
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit, onConfirm: () -> Unit, dialogTitle: String, dialogText: String
+) {
+    AlertDialog(onDismissRequest = { onDismissRequest() },
+        title = { Text(text = dialogTitle) },
+        text = { Text(text = dialogText) },
+        confirmButton = {
+            TextButton(onClick = { onConfirm() }) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) {
+                Text("Cancelar")
+            }
+        })
 }

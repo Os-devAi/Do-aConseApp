@@ -8,12 +8,16 @@ import com.nexusdev.apprecetas.presentation.ui.AddRecetas
 import com.nexusdev.apprecetas.presentation.ui.DetalleRecetaScreen
 import com.nexusdev.apprecetas.presentation.ui.LoginScreen
 import com.nexusdev.apprecetas.presentation.ui.RecetasScreen
+import com.nexusdev.apprecetas.presentation.ui.SplashScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") {
+            SplashScreen(navController)
+        }
         composable("login") {
             LoginScreen(navController)
         }

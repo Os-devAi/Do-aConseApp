@@ -3,6 +3,7 @@ package com.nexusdev.apprecetas.presentation.ui
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -56,30 +58,17 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
         var password = remember { mutableStateOf("") }
         val context = LocalContext.current
 
-        LaunchedEffect(Unit) {
-            delay(2000)
-            val sharedPreferences: SharedPreferences =
-                navController.context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-            val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+        Image(painterResource(R.drawable.logo_splash), contentDescription = "logo")
 
-            if (isLoggedIn) {
-                navController.navigate("recetas") {
-                    popUpTo("login") { inclusive = true } // Evita volver a SplashScreen
-                }
-            } else {
-                navController.navigate("login") {
-                    popUpTo("login") { inclusive = true }
-                }
-            }
-        }
+        Spacer(
+            modifier = Modifier.height(25.dp)
+        )
 
-        // UI del Splash Screen
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "Cargando...", style = MaterialTheme.typography.headlineMedium)
-        }
+        Text("Login", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Card(
             modifier = Modifier
@@ -88,6 +77,7 @@ fun LoginScreen(navController: NavController, viewModel: RecetasViewModel = hilt
         ) {
             TextField(
                 value = email,
+                singleLine = true,
                 onValueChange = { input ->
                     email = input
                 },
