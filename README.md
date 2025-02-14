@@ -6,6 +6,8 @@ App de recetas
 - JetpackCompose
 - ROOM DB para almacenamiento local
 - SharedPreferences para mantener la sesion activa
+- Inyección de dependencias con Hilt
+- Arquitecura MVVM.
 
 -- Imígenes
 
