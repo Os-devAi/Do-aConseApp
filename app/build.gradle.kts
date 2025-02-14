@@ -1,9 +1,13 @@
+import org.jetbrains.kotlin.gradle.targets.js.npm.importedPackageDir
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    id("com.google.gms.google-services")
+    alias(libs.plugins.google.firebase.appdistribution)
 }
 
 android {
@@ -27,6 +31,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            firebaseAppDistribution {
+                releaseNotesFile="/path/to/releasenotes.txt"
+                testers="jdurini@koalit.dev,vrbox2020jp@gmail.com"
+            }
         }
     }
     compileOptions {
@@ -83,4 +91,9 @@ dependencies {
 
     //
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
+    //Firebas
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation("com.google.firebase:firebase-appdistribution-api:16.0.0-beta14")
+    implementation("com.google.firebase:firebase-analytics")
 }
