@@ -11,9 +11,8 @@ App de recetas
 Login ingresar con las credenciales indicadas en los requerimientos.
 Pantalla de inicio.
 
-
-   
-
+   <img width="113" alt="image" src="https://github.com/user-attachments/assets/83164592-e16f-40c7-838b-da6d0b3ccb79" />
+   <img width="114" alt="image" src="https://github.com/user-attachments/assets/2c721965-f5f7-4d58-a9d6-1b9ad7251d12" />
 
 Ingresar nuevo registro
 Llenar el formulario, todos los campos son requeridos a excepci�n de link del video. 
